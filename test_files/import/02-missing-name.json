@@ -1,0 +1,109 @@
+[
+  {
+    "name": "Movie 1",
+    "coordinates": {
+      "x": 10,
+      "y": 20
+    },
+    "oscarsCount": 2,
+    "mpaaRating": "PG_13",
+    "director": {
+      "name": "Director 1",
+      "location": {
+        "x": 1,
+        "y": 2,
+        "z": 3,
+        "name": "Локация режиссёра"
+      },
+      "eyeColor": "RED",
+      "hairColor": "WHITE",
+      "height": 175,
+      "nationality": "SPAIN"
+    },
+    "operator": {
+      "name": "Operator 1",
+      "location": {
+        "x": 4,
+        "y": 5,
+        "z": 6,
+        "name": "Локация оператора"
+      }
+    },
+    "budget": 1000000,
+    "totalBoxOffice": 2000000,
+    "length": 120,
+    "goldenPalmCount": 1,
+    "genre": "DRAMA",
+    "screenwriter": {
+      "name": "Screenwriter 1",
+      "eyeColor": "BLUE",
+      "hairColor": "BROWN",
+      "height": 180,
+      "nationality": "RUSSIA",
+      "location": {
+        "x": 7,
+        "y": 8,
+        "z": 9,
+        "name": "Локация сценариста"
+      }
+    }
+  },
+  {
+    "coordinates": {
+      "x": 10,
+      "y": 20
+    },
+    "oscarsCount": 0,
+    "mpaaRating": "R",
+    "director": {
+      "name": "Director 2",
+      "location": {
+        "x": 1,
+        "y": 2,
+        "z": 3,
+        "name": "Локация режиссёра"
+      }
+    },
+    "operator": {
+      "name": "Operator 2",
+      "location": {
+        "x": 4,
+        "y": 5,
+        "z": 6,
+        "name": "Локация оператора"
+      }
+    },
+    "genre": "THRILLER",
+    "length": 90
+  },
+  {
+    "name": "Movie 3",
+    "coordinates": {
+      "x": 10,
+      "y": 20
+    },
+    "oscarsCount": 0,
+    "mpaaRating": "G",
+    "director": {
+      "name": "Director 3",
+      "location": {
+        "x": 1,
+        "y": 2,
+        "z": 3,
+        "name": "Локация режиссёра"
+      }
+    },
+    "operator": {
+      "name": "Operator 3",
+      "location": {
+        "x": 4,
+        "y": 5,
+        "z": 6,
+        "name": "Локация оператора"
+      }
+    },
+    "genre": "ADVENTURE",
+    "budget": 1,
+    "length": 1
+  }
+]
