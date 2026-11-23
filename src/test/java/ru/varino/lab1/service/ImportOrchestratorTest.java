@@ -1,5 +1,6 @@
 package ru.varino.lab1.service;
 
+import jakarta.transaction.RollbackException;
 import org.junit.jupiter.api.Test;
 import ru.varino.lab1.entity.Movie;
 
@@ -9,20 +10,24 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ImportOrchestratorTest {
+    private static final byte[] CONTENT = {1, 2};
+
     @Test
-    void successfulImportReturnsCountWithoutRecordingFailure() throws Exception {
+    void successfulImportPassesFileAndDoesNotRecordFailure() throws Exception {
         var failures = new AtomicInteger();
         var orchestrator = orchestrator(new ImportService() {
             @Override
-            public int importMovies(List<Movie> movies, String username) {
+            public int importMovies(List<Movie> movies, String username, String fileName, byte[] content) {
                 assertEquals("alice", username);
+                assertEquals("movies.json", fileName);
+                assertSame(CONTENT, content);
                 return 2;
             }
         }, new HistoryService() {
             @Override
             public void saveFailed(String username) { failures.incrementAndGet(); }
         });
-        assertEquals(2, orchestrator.initiateImport(List.of(), "alice"));
+        assertEquals(2, orchestrator.initiateImport(List.of(), "alice", "movies.json", CONTENT));
         assertEquals(0, failures.get());
     }
 
@@ -38,7 +43,26 @@ class ImportOrchestratorTest {
             }
         });
         assertSame(failure, assertThrows(RuntimeException.class,
-                () -> orchestrator.initiateImport(List.of(), "alice")));
+                () -> orchestrator.initiateImport(List.of(), "alice", "movies.json", CONTENT)));
+        assertEquals(1, failures.get());
+    }
+
+    @Test
+    void xaRollbackIsRecordedAndRethrown() throws Exception {
+        var rollback = new RollbackException("S3 недоступно");
+        var failures = new AtomicInteger();
+        var orchestrator = orchestrator(new ImportService() {
+            @Override
+            public int importMovies(List<Movie> movies, String username, String fileName, byte[] content)
+                    throws RollbackException {
+                throw rollback;
+            }
+        }, new HistoryService() {
+            @Override
+            public void saveFailed(String username) { failures.incrementAndGet(); }
+        });
+        assertSame(rollback, assertThrows(RollbackException.class,
+                () -> orchestrator.initiateImport(List.of(), "alice", "movies.json", CONTENT)));
         assertEquals(1, failures.get());
     }
 
@@ -51,13 +75,15 @@ class ImportOrchestratorTest {
             public void saveFailed(String username) { throw historyFailure; }
         });
         assertSame(historyFailure, assertThrows(RuntimeException.class,
-                () -> orchestrator.initiateImport(List.of(), "alice")));
+                () -> orchestrator.initiateImport(List.of(), "alice", "movies.json", CONTENT)));
     }
 
     private ImportService failingImport(RuntimeException failure) {
         return new ImportService() {
             @Override
-            public int importMovies(List<Movie> movies, String username) { throw failure; }
+            public int importMovies(List<Movie> movies, String username, String fileName, byte[] content) {
+                throw failure;
+            }
         };
     }
 

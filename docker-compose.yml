@@ -1,6 +1,7 @@
 services:
   postgres:
     image: postgres:15-alpine
+    command: ["postgres", "-c", "max_prepared_transactions=32"]
     environment:
       POSTGRES_DB: postgres
       POSTGRES_USER: admin
@@ -17,8 +18,24 @@ services:
       timeout: 5s
       retries: 5
 
+  seaweedfs:
+    image: chrislusf/seaweedfs:4.55
+    command: ["mini", "-dir=/data", "-ip=seaweedfs"]
+    environment:
+      AWS_ACCESS_KEY_ID: ${S3_ACCESS_KEY:-lab3}
+      AWS_SECRET_ACCESS_KEY: ${S3_SECRET_KEY:-lab3-local-secret}
+      S3_BUCKET: imports
+    ports:
+      - "127.0.0.1:8333:8333"
+    volumes:
+      - is-lab-1-seaweedfs-data:/data
+    networks:
+      - is-lab-1-network
+
   app:
     build: .
+    volumes:
+      - is-lab-1-tx-object-store:/opt/jboss/wildfly/standalone/data/tx-object-store
     ports:
       - "8080:8080"
       - "9990:9990"
@@ -28,14 +45,22 @@ services:
       POSTGRES_DB: postgres
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
+      S3_ENDPOINT: http://seaweedfs:8333
+      AWS_ACCESS_KEY_ID: ${S3_ACCESS_KEY:-lab3}
+      AWS_SECRET_ACCESS_KEY: ${S3_SECRET_KEY:-lab3-local-secret}
+      S3_BUCKET: imports
     depends_on:
       postgres:
         condition: service_healthy
+      seaweedfs:
+        condition: service_started
     networks:
       - is-lab-1-network
 
 volumes:
   is-lab-1-postgres-data:
+  is-lab-1-seaweedfs-data:
+  is-lab-1-tx-object-store:
 
 networks:
   is-lab-1-network:

@@ -18,13 +18,17 @@ public class HistoryService {
     private ImportRepository importRepository;
 
     @Transactional
-    public void saveSuccess(String username, long count) {
-        save(username, ImportStatus.SUCCESS, count);
+    public void saveSuccess(String username, long count, String fileKey, String fileName) {
+        ImportOperation operation = newOperation(username, ImportStatus.SUCCESS);
+        operation.setCount(count);
+        operation.setFileKey(fileKey);
+        operation.setFileName(fileName);
+        importRepository.save(operation);
     }
 
     @Transactional(REQUIRES_NEW)
     public void saveFailed(String username) {
-        save(username, ImportStatus.FAILED, null);
+        importRepository.save(newOperation(username, ImportStatus.FAILED));
     }
 
     @Transactional
@@ -33,13 +37,17 @@ public class HistoryService {
     }
 
     @Transactional
-    private void save(String username, ImportStatus status, Long count) {
+    public ImportOperation findForUser(Long id, String username, boolean isAdmin) {
+        ImportOperation operation = importRepository.findById(id);
+        return operation != null && (isAdmin || username.equals(operation.getUsername())) ? operation : null;
+    }
+
+    private ImportOperation newOperation(String username, ImportStatus status) {
         ImportOperation operation = new ImportOperation();
         operation.setUsername(username);
         operation.setStatus(status);
-        operation.setCount(count);
         operation.setCreationDate(LocalDateTime.now());
-        importRepository.save(operation);
+        return operation;
     }
 
 }

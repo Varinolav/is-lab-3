@@ -3,15 +3,17 @@ package ru.varino.lab1.service;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.transaction.RollbackException;
 import jakarta.transaction.Transactional;
-import ru.varino.lab1.interceptor.LogL2CacheStatistics;
 import jakarta.validation.Validator;
 import ru.varino.lab1.entity.Movie;
 import ru.varino.lab1.entity.Person;
 import ru.varino.lab1.exception.ImportValidationException;
+import ru.varino.lab1.interceptor.LogL2CacheStatistics;
 import ru.varino.lab1.repository.MovieRepository;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
@@ -28,9 +30,13 @@ public class ImportService {
     private HistoryService historyService;
 
     @Inject
+    private ImportFileStorage fileStorage;
+
+    @Inject
     private MovieNameService movieNames;
 
-    public int importMovies(List<Movie> movies, String username) {
+    public int importMovies(List<Movie> movies, String username, String fileName, byte[] content)
+            throws RollbackException {
         if (movies == null || movies.isEmpty()) {
             throw new ImportValidationException("Файл должен содержать непустой JSON-массив фильмов.");
         }
@@ -58,7 +64,9 @@ public class ImportService {
         for (Movie movie : movies) {
             movieRepository.saveImported(movie);
         }
-        historyService.saveSuccess(username, movies.size());
+        String fileKey = UUID.randomUUID().toString();
+        historyService.saveSuccess(username, movies.size(), fileKey, fileName);
+        fileStorage.saveInTransaction(fileKey, content);
         return movies.size();
     }
 

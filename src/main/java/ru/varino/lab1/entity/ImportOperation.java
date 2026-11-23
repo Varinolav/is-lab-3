@@ -15,4 +15,10 @@ public class ImportOperation {
     private ImportStatus status;
     private LocalDateTime creationDate;
     private Long count;
+    private String fileKey;
+    private String fileName;
+
+    public boolean hasDownload() {
+        return status == ImportStatus.SUCCESS && fileKey != null;
+    }
 }

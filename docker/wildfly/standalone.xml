@@ -456,7 +456,7 @@
             </deployment-permissions>
         </subsystem>
         <subsystem xmlns="urn:jboss:domain:transactions:6.0">
-            <core-environment node-identifier="${jboss.tx.node.id:1}">
+            <core-environment node-identifier="${jboss.tx.node.id:lab3}">
                 <process-id>
                     <uuid/>
                 </process-id>

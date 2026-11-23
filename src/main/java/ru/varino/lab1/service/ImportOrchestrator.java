@@ -2,6 +2,7 @@ package ru.varino.lab1.service;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.transaction.RollbackException;
 import ru.varino.lab1.entity.Movie;
 
 import java.util.List;
@@ -14,12 +15,13 @@ public class ImportOrchestrator {
     @Inject
     private HistoryService historyService;
 
-    public int initiateImport(List<Movie> movies, String username) {
+    public int initiateImport(List<Movie> movies, String username, String fileName, byte[] content)
+            throws RollbackException {
         try {
-            return importService.importMovies(movies, username);
-        } catch (RuntimeException e) {
+            return importService.importMovies(movies, username, fileName, content);
+        } catch (RollbackException | RuntimeException failure) {
             historyService.saveFailed(username);
-            throw e;
+            throw failure;
         }
     }
 }

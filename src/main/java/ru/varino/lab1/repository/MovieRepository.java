@@ -25,8 +25,11 @@ public class MovieRepository {
 
     @Transactional(Transactional.TxType.REQUIRES_NEW)
     public void initializeNameRegistry() {
-        session().createNativeMutationQuery("INSERT INTO movie_name_registry (id, version) VALUES (:id, 0) "
-                        + "ON CONFLICT (id) DO NOTHING")
+        session().createNativeMutationQuery("""
+                        INSERT INTO movie_name_registry (id, version)
+                        SELECT :id, 0 WHERE NOT EXISTS (SELECT 1 FROM movie_name_registry WHERE id = :id)
+                        ON CONFLICT (id) DO NOTHING
+                        """)
                 .setParameter("id", MovieNameRegistry.ID)
                 .executeUpdate();
     }

@@ -17,5 +17,6 @@ RUN mvn --batch-mode --no-transfer-progress -DskipTests package \
     && mv target/*.war target/ROOT.war
 
 FROM quay.io/wildfly/wildfly:36.0.0.Final-jdk17
+RUN mkdir -p /opt/jboss/wildfly/standalone/data/tx-object-store
 COPY docker/wildfly/standalone.xml /opt/jboss/wildfly/standalone/configuration/standalone.xml
 COPY --from=build /workspace/target/ROOT.war /opt/jboss/wildfly/standalone/deployments/ROOT.war

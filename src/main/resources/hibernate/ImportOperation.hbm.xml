@@ -12,5 +12,9 @@
         </property>
         <property name="creationDate" column="creation_date" type="java.time.LocalDateTime" not-null="true"/>
         <property name="count" column="imported_count" type="java.lang.Long"/>
+        <property name="fileKey" column="file_key" type="string"/>
+        <property name="fileName" type="string">
+            <column name="file_name" sql-type="text"/>
+        </property>
     </class>
 </hibernate-mapping>

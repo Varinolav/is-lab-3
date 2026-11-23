@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import MovieImport from './MovieImport.jsx';
 
-const statuses = { SUCCESS: 'Успешно', FAILED: 'Ошибка' };
+const statuses = { PENDING: 'В обработке', SUCCESS: 'Успешно', FAILED: 'Ошибка' };
 const pageSize = 20;
 
 export default function ImportHistory({ request, revision, onChanged }) {
@@ -45,7 +45,7 @@ export default function ImportHistory({ request, revision, onChanged }) {
     <div className="table-scroll">
       <table>
         <thead><tr><th scope="col">ID операции</th><th scope="col">Дата</th><th scope="col">Статус</th>
-          <th scope="col">Пользователь</th><th scope="col">Добавлено фильмов</th></tr></thead>
+          <th scope="col">Пользователь</th><th scope="col">Добавлено фильмов</th><th scope="col">Файл</th></tr></thead>
         <tbody>{!loading && !error && rows.map((operation) => <tr key={operation.id}>
           <td>{operation.id}</td>
           <td>{operation.creationDate ? operation.creationDate.replace('T', ' ').slice(0, 19) : '—'}</td>
@@ -54,6 +54,10 @@ export default function ImportHistory({ request, revision, onChanged }) {
           </span></td>
           <td>{operation.username}</td>
           <td>{operation.status === 'SUCCESS' ? operation.count ?? '—' : '—'}</td>
+          <td>{operation.fileName
+            ? <a href={`/api/imports/${operation.id}/file`} download={operation.fileName}
+                title={operation.fileName}>Скачать</a>
+            : '—'}</td>
         </tr>)}</tbody>
       </table>
       {loading && <div className="empty-state" role="status">Загружаем историю…</div>}

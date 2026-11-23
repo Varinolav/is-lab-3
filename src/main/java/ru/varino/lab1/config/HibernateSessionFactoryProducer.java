@@ -10,6 +10,7 @@ import jakarta.transaction.TransactionSynchronizationRegistry;
 import org.apache.commons.dbcp2.managed.BasicManagedDataSource;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
+import org.postgresql.xa.PGXADataSource;
 import ru.varino.lab1.entity.MovieNameRegistry;
 
 import java.sql.SQLException;
@@ -38,19 +39,26 @@ public class HibernateSessionFactoryProducer {
 
     @Produces
     @Dependent
-    BasicManagedDataSource connectionPool(TransactionSynchronizationRegistry transactionRegistry) {
+    BasicManagedDataSource connectionPool(TransactionSynchronizationRegistry transactionRegistry, PGXADataSource postgres) {
         var pool = new BasicManagedDataSource();
         pool.setTransactionManager(transactionManager);
         pool.setTransactionSynchronizationRegistry(transactionRegistry);
-        pool.setDriverClassName("org.postgresql.Driver");
+        pool.setXaDataSourceInstance(postgres);
+        return pool;
+    }
+
+    @Produces
+    @Dependent
+    PGXADataSource postgresXaDataSource() {
+        var postgres = new PGXADataSource();
         var environment = System.getenv();
-        pool.setUrl("jdbc:postgresql://%s:%s/%s".formatted(
+        postgres.setUrl("jdbc:postgresql://%s:%s/%s".formatted(
                 environment.getOrDefault("POSTGRES_HOST", "postgres"),
                 environment.getOrDefault("POSTGRES_PORT", "5432"),
                 environment.getOrDefault("POSTGRES_DB", "postgres")));
-        pool.setUsername(environment.getOrDefault("POSTGRES_USER", "admin"));
-        pool.setPassword(environment.getOrDefault("POSTGRES_PASSWORD", "admin"));
-        return pool;
+        postgres.setUser(environment.getOrDefault("POSTGRES_USER", "admin"));
+        postgres.setPassword(environment.getOrDefault("POSTGRES_PASSWORD", "admin"));
+        return postgres;
     }
 
     void closeSessionFactory(@Disposes SessionFactory sessionFactory) {

@@ -3,7 +3,10 @@
     <deployment>
         <dependencies>
             <module name="org.hibernate" services="import"/>
+            <module name="org.jboss.jts"/>
+            <module name="org.jboss.jboss-transaction-spi"/>
             <module name="jdk.unsupported"/>
+            <module name="jdk.net"/>
         </dependencies>
     </deployment>
 </jboss-deployment-structure>
