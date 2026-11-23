@@ -4,12 +4,15 @@
         "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
 <hibernate-configuration>
     <session-factory>
-        <property name="hibernate.connection.datasource">java:/jboss/datasources/PostgresDS</property>
         <property name="hibernate.dialect">org.hibernate.dialect.PostgreSQLDialect</property>
         <property name="hibernate.hbm2ddl.auto">update</property>
         <property name="hibernate.transaction.coordinator_class">jta</property>
         <property name="hibernate.current_session_context_class">jta</property>
         <property name="hibernate.jta.platform">org.hibernate.engine.transaction.jta.platform.internal.JBossAppServerJtaPlatform</property>
+        <property name="hibernate.cache.use_second_level_cache">true</property>
+        <property name="wildfly.jpa.regionfactory">false</property>
+        <property name="hibernate.cache.region.factory_class">org.infinispan.hibernate.cache.v6.InfinispanRegionFactory</property>
+        <property name="hibernate.cache.infinispan.cfg">org/infinispan/hibernate/cache/commons/builder/infinispan-configs-local.xml</property>
 
         <mapping resource="hibernate/Coordinates.hbm.xml"/>
         <mapping resource="hibernate/Location.hbm.xml"/>

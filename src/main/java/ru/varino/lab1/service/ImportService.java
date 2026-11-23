@@ -4,6 +4,7 @@ package ru.varino.lab1.service;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import ru.varino.lab1.interceptor.LogL2CacheStatistics;
 import jakarta.validation.Validator;
 import ru.varino.lab1.entity.Movie;
 import ru.varino.lab1.entity.Person;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
+@LogL2CacheStatistics
 @Transactional
 public class ImportService {
     @Inject

@@ -3,6 +3,7 @@
     <deployment>
         <dependencies>
             <module name="org.hibernate" services="import"/>
+            <module name="jdk.unsupported"/>
         </dependencies>
     </deployment>
 </jboss-deployment-structure>

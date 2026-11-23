@@ -3,6 +3,7 @@
 <hibernate-mapping>
     <class name="ru.varino.lab1.entity.Person" table="person"
            check="length(name) > 0 AND (height IS NULL OR height > 0)">
+        <cache usage="read-write"/>
         <id name="id" type="java.lang.Long"><generator class="identity"/></id>
         <property name="name" type="string" not-null="true"/>
         <property name="eyeColor">

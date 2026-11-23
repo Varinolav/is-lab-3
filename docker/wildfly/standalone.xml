@@ -135,18 +135,9 @@
                     <driver>h2</driver>
                     <security user-name="sa" password="sa"/>
                 </datasource>
-                <datasource jndi-name="java:/jboss/datasources/PostgresDS" pool-name="PostgresDS" enabled="true" use-java-context="true">
-                    <connection-url>jdbc:postgresql://${env.POSTGRES_HOST:postgres}:${env.POSTGRES_PORT:5432}/${env.POSTGRES_DB:postgres}</connection-url>
-                    <driver>postgresql</driver>
-                    <transaction-isolation>TRANSACTION_READ_COMMITTED</transaction-isolation>
-                    <security user-name="${env.POSTGRES_USER:admin}" password="${env.POSTGRES_PASSWORD:admin}"/>
-                </datasource>
                 <drivers>
                     <driver name="h2" module="com.h2database.h2">
                         <xa-datasource-class>org.h2.jdbcx.JdbcDataSource</xa-datasource-class>
-                    </driver>
-                    <driver name="postgresql" module="org.postgresql">
-                        <driver-class>org.postgresql.Driver</driver-class>
                     </driver>
                 </drivers>
             </datasources>

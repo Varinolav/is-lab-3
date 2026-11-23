@@ -3,12 +3,14 @@ package ru.varino.lab1.service;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import ru.varino.lab1.interceptor.LogL2CacheStatistics;
 import ru.varino.lab1.entity.Location;
 import ru.varino.lab1.repository.LocationRepository;
 
 import java.util.List;
 
 @ApplicationScoped
+@LogL2CacheStatistics
 @Transactional
 public class LocationService {
 

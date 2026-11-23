@@ -2,8 +2,11 @@ package ru.varino.lab1.repository;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import org.hibernate.Cache;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.action.internal.BulkOperationCleanupAction;
+import org.hibernate.engine.spi.SessionImplementor;
 import ru.varino.lab1.entity.Movie;
 import ru.varino.lab1.entity.MovieGenre;
 
@@ -19,13 +22,14 @@ public class MovieOperationRepository {
         return sessionFactory.getCurrentSession();
     }
 
+    private Cache getCache() { return sessionFactory.getCache(); }
+
+
     public Integer deleteOneByGenre(MovieGenre genre) {
-        Session session = session();
-        session.flush();
-        Integer id = session.createNativeQuery("SELECT lab_delete_one_movie_by_genre(:genre)", Integer.class)
+        Integer id = session().createNativeQuery("SELECT lab_delete_one_movie_by_genre(:genre)", Integer.class)
                 .setParameter("genre", genre.name())
                 .getSingleResult();
-        session.clear();
+        getCache().evictEntityData(Movie.class);
         return id;
     }
 
@@ -52,7 +56,7 @@ public class MovieOperationRepository {
         session.flush();
         Integer count = session.createNativeQuery("SELECT lab_add_oscar_to_r_movies()", Integer.class)
                 .getSingleResult();
-        session.clear();
+        getCache().evictEntityData(Movie.class);
         return count;
     }
 }

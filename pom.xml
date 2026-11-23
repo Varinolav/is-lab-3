@@ -17,11 +17,24 @@
         <junit.version>5.13.2</junit.version>
         <hibernate.version>6.6.37.Final</hibernate.version>
         <postgresql.version>42.7.8</postgresql.version>
+        <commons-dbcp2.version>2.14.0</commons-dbcp2.version>
+        <infinispan.version>16.3.2</infinispan.version>
         <jakarta.validation.version>3.0.2</jakarta.validation.version>
         <lombok.version>1.18.38</lombok.version>
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>org.infinispan</groupId>
+            <artifactId>infinispan-hibernate-cache-v66</artifactId>
+            <version>${infinispan.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.logging</groupId>
+            <artifactId>jboss-logging</artifactId>
+            <version>3.6.1.Final</version>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
@@ -57,6 +70,24 @@
             <artifactId>postgresql</artifactId>
             <version>${postgresql.version}</version>
             <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-dbcp2</artifactId>
+            <version>${commons-dbcp2.version}</version>
+            <scope>runtime</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>jakarta.transaction</groupId>
+                    <artifactId>jakarta.transaction-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.transaction</groupId>
+            <artifactId>jakarta.transaction-api</artifactId>
+            <version>2.0.1</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>jakarta.validation</groupId>
@@ -98,10 +129,63 @@
 
     <build>
         <plugins>
+            <!-- DBCP2 2.14 uses javax.transaction. WildFly exposes jakarta.transaction. -->
+            <plugin>
+                <groupId>org.eclipse.transformer</groupId>
+                <artifactId>transformer-maven-plugin</artifactId>
+                <version>1.0.0</version>
+                <executions>
+                    <execution>
+                        <id>transform-dbcp2</id>
+                        <phase>generate-resources</phase>
+                        <goals><goal>jar</goal></goals>
+                        <configuration>
+                            <artifact>
+                                <groupId>org.apache.commons</groupId>
+                                <artifactId>commons-dbcp2</artifactId>
+                                <type>jar</type>
+                            </artifact>
+                            <type>jar</type>
+                            <baseName>commons-dbcp2</baseName>
+                            <classifier>jakarta</classifier>
+                            <buildDirectory>${project.build.directory}</buildDirectory>
+                            <attach>false</attach>
+                            <rules>
+                                <jakartaDefaults>true</jakartaDefaults>
+                                <overwrite>true</overwrite>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>add-dbcp2-to-classes</id>
+                        <phase>generate-resources</phase>
+                        <goals><goal>run</goal></goals>
+                        <configuration>
+                            <target>
+                                <delete dir="${project.build.outputDirectory}/org/apache/commons/dbcp2"/>
+                                <unzip src="${project.build.directory}/commons-dbcp2-jakarta.jar"
+                                       dest="${project.build.outputDirectory}">
+                                    <patternset includes="org/apache/commons/dbcp2/**,META-INF/LICENSE.txt,META-INF/NOTICE.txt"/>
+                                </unzip>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
                 <version>3.4.0</version>
+                <configuration>
+                    <packagingExcludes>WEB-INF/lib/commons-dbcp2-${commons-dbcp2.version}.jar</packagingExcludes>
+                </configuration>
             </plugin>
         </plugins>
     </build>

@@ -8,6 +8,7 @@
                   AND (total_box_office IS NULL OR total_box_office > 0)
                   AND (length IS NULL OR length > 0)
                   AND (golden_palm_count IS NULL OR golden_palm_count > 0)">
+        <cache usage="read-write"/>
         <id name="id" type="java.lang.Integer"><generator class="identity"/></id>
         <property name="name" type="string" not-null="true"/>
         <many-to-one name="coordinates" class="ru.varino.lab1.entity.Coordinates" column="coordinates_id" not-null="true" lazy="false"/>

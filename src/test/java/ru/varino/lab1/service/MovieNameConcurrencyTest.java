@@ -41,6 +41,7 @@ class MovieNameConcurrencyTest {
                 .setProperty("hibernate.connection.url", "jdbc:h2:mem:" + UUID.randomUUID())
                 .setProperty("hibernate.connection.isolation", "2")
                 .setProperty("hibernate.hbm2ddl.auto", "create-drop")
+                .setProperty("hibernate.cache.use_second_level_cache", "false")
                 .setProperty("hibernate.current_session_context_class", "managed")
                 .buildSessionFactory();
         repository = new MovieRepository();
